@@ -4,6 +4,7 @@ import Register from "./Pages/Register";
 import Login from "./Pages/login";
 import Secret from "./Pages/Secret";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
     return (

@@ -1,26 +1,44 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 
 function Register() {
+    const navigate = useNavigate();
     const [value, setValue] = useState({
         email: "",
         password: ""
     });
 
+    const generateError = (err) => {
+        toast.error(err, {
+            position: "top-right",
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-
         try {
-            const { data } = await axios.post("http://localhost:4000/register", {
-                ...value,
-            });
-            toast.success("Registration successful!");
+            const { data } = await axios.post(
+                "http://localhost:4000/register",
+                { ...value },
+                { withCredentials: true } //cookies
+            );
+
+            if (data) {
+                if (data.errors) {
+                    const { email, password } = data.errors;
+
+                    if (email) generateError(email);
+                    else if (password) generateError(password);
+                } else {
+                    navigate("/");
+                };
+            }
+
         } catch (err) {
-            console.log(err);
-            toast.error("Registration failed. Please try again.");
+            console.log("Server Response:", err.response?.data || err.message);
+            toast.error(err.response?.data?.error || "Registration failed. Please try again.");
         }
     };
 
@@ -51,8 +69,7 @@ function Register() {
                     Already have an account? <Link to="/login">Login</Link>
                 </span>
             </form>
-
-            <ToastContainer></ToastContainer>
+            <ToastContainer />
         </div>
     )
 }
